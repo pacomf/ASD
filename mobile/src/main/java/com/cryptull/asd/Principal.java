@@ -25,12 +25,13 @@ public class Principal extends Activity {
 
         final long duration1 = System.currentTimeMillis() - startTime;
 
-        System.out.println("["+duration1+"]-ISO: "+Utilities.isomorfismo);
-        System.out.println("SolG: "+Utilities.SolG);
-        System.out.println("SolGi: "+Utilities.SolGi);
+        String msg = String.valueOf(Utilities.graph2Long(Utilities.G))+":"+Utilities.list2Bytes(Utilities.isomorfismo);
 
-        System.out.println("Reto0: "+Utilities.checkReto0(Utilities.Gi, Utilities.isomorfismo));
-        System.out.println("Reto1: "+Utilities.checkReto1(Utilities.Gi, Utilities.SolGi));
+        System.out.println(msg.getBytes().length);
+
+        System.out.println(Utilities.bytes2List(Utilities.list2Bytes(Utilities.isomorfismo)));
+
+
 
         System.out.println("---- TERMINA -----");
     }

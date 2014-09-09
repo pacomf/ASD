@@ -204,5 +204,46 @@ public class Utilities {
 
     }
 
+    public static void printGraph (boolean[][] graph){
+        System.out.println("Grafo: ");
+        for (int i=0; i<dim; i++){
+            for (int j=0; j<dim; j++){
+                System.out.print(graph[i][j] ? 1 : 0);
+            }
+            System.out.println();
+        }
+    }
+
+    public static long graph2Long (boolean[][] graph){
+        long n = 0;
+        for (int i=0; i<dim; i++){
+            for (int j=0; j<dim; j++){
+                n = (n << 1) + (graph[i][j] ? 1 : 0);
+            }
+        }
+        return n;
+    }
+
+    public static boolean[][] long2Graph (long number){
+        final boolean[][] graph = new boolean[dim][dim];
+        int base = dim*dim;
+        for (int i = 0; i < base; i++) {
+            graph[(base - 1 - i)/dim][(base - 1 - i)%dim] = (number & (1 << i)) != 0;
+        }
+        return graph;
+    }
+
+    public static byte[] list2Bytes (List<Integer> list){
+        return list.toString().replaceAll("\\[|\\]", "").replaceAll(" ","").getBytes();
+    }
+
+    public static List<Integer> bytes2List (byte[] bytes){
+        List<Integer> list = new ArrayList<Integer>();
+        String[] ls = (new String(bytes)).split(",");
+        for (int i=0; i<ls.length; i++){
+            list.add(i, Integer.parseInt(ls[i]));
+        }
+        return list;
+    }
 
 }
