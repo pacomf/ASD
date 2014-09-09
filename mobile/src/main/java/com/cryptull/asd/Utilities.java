@@ -2,6 +2,7 @@ package com.cryptull.asd;
 
 import android.util.Base64;
 
+import java.nio.ByteBuffer;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -25,6 +26,7 @@ public class Utilities {
     public static boolean[][] Gi;
     public static List<Integer> SolGi;
     public static List<Integer> SolG;
+    public static byte[] key;
     public static int dim;
 
     public static SecretKeySpec getKey(byte[] key){
@@ -40,11 +42,17 @@ public class Utilities {
     public static byte[] cipher(byte[] plainText, byte[] key){
         // Encode the original data with AES
         byte[] encodedBytes = null;
+        byte[] key8 = new byte[8];
+        for (int i=0; i<8; i++){
+            key8[i] = key[i];
+        }
         try {
             Cipher c = Cipher.getInstance("DES/ECB/PKCS5Padding");
-            c.init(Cipher.ENCRYPT_MODE, getKey(key));
+            c.init(Cipher.ENCRYPT_MODE, getKey(key8));
             encodedBytes = c.doFinal(plainText);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return encodedBytes;
     }
@@ -93,6 +101,11 @@ public class Utilities {
             }
         }
 
+        List<Integer> SolGi_ = new ArrayList<Integer>();
+        for (int i=0; i<dim; i++) {
+            SolGi_.add(isomorfismo_.get(Utilities.SolG.get(i)-1));
+        }
+        Utilities.key = Utilities.hash(Utilities.list2String(SolGi_).getBytes());
         return true;
     }
 
@@ -115,14 +128,27 @@ public class Utilities {
             if (!visited[i])
                 return false;
         }
+        Utilities.key = Utilities.hash(Utilities.list2String(Utilities.SolGi).getBytes());
+        // TODO: Concatener a esta clave la G
         return true;
+    }
+
+    public static boolean checkReto(boolean reto, boolean[][] Gi_, List<Integer> SolGi_, List<Integer> Iso_){
+        if (reto)
+            return checkReto1(Gi_, SolGi_);
+        else
+            return checkReto0(Gi_, Iso_);
     }
 
     public static byte[] decipher(byte[] cipherText, byte[] key){
         byte[] decodedBytes = null;
+        byte[] key8 = new byte[8];
+        for (int i=0; i<8; i++){
+            key8[i] = key[i];
+        }
         try {
             Cipher c = Cipher.getInstance("DES/ECB/PKCS5Padding");
-            c.init(Cipher.DECRYPT_MODE, getKey(key));
+            c.init(Cipher.DECRYPT_MODE, getKey(key8));
             decodedBytes = c.doFinal(cipherText);
         } catch (Exception e) {
             e.printStackTrace();
@@ -233,17 +259,98 @@ public class Utilities {
         return graph;
     }
 
-    public static byte[] list2Bytes (List<Integer> list){
-        return list.toString().replaceAll("\\[|\\]", "").replaceAll(" ","").getBytes();
+    public static String list2String (List<Integer> list){
+        return list.toString().replaceAll("\\[|\\]", "").replaceAll(" ", "");
     }
 
-    public static List<Integer> bytes2List (byte[] bytes){
+    public static List<Integer> string2List (String str){
         List<Integer> list = new ArrayList<Integer>();
-        String[] ls = (new String(bytes)).split(",");
+        String[] ls = (str).split(",");
         for (int i=0; i<ls.length; i++){
             list.add(i, Integer.parseInt(ls[i]));
         }
         return list;
+    }
+
+    public static byte[] longToBytes(long l) {
+        ArrayList<Byte> bytes = new ArrayList<Byte>();
+        while (l != 0) {
+            bytes.add((byte) (l % (0xff + 1)));
+            l = l >> 8;
+        }
+        byte[] bytesp = new byte[bytes.size()];
+        for (int i = bytes.size() - 1, j = 0; i >= 0; i--, j++) {
+            bytesp[j] = bytes.get(i);
+        }
+        return bytesp;
+    }
+
+    public static String getSegment(boolean cipher, byte[] key){
+        generateGi();
+        long graphL = Utilities.graph2Long(Utilities.Gi);
+        String seg = String.valueOf(graphL)+":";
+        if (Utilities.hashBinary(Utilities.longToBytes(graphL))){
+            seg+=Utilities.list2String(Utilities.SolGi);
+            // TODO: Completar la KEY con la G
+            Utilities.key = Utilities.hash(Utilities.list2String(Utilities.SolGi).getBytes());
+        } else {
+            seg+=Utilities.list2String(Utilities.isomorfismo);
+            Utilities.key = Utilities.hash(Utilities.list2String(Utilities.SolGi).getBytes());
+        }
+        if (cipher){
+            seg = new String(Utilities.cipher(seg.getBytes(), key));
+        }
+        seg+="|";
+        return seg;
+    }
+
+    public static String getPackage(int segments, String secret){
+        String message = null;
+        if (segments == 0)
+            return message;
+        message = getSegment(false, null);
+        for (int i=1; i<segments;i++){
+            message+=getSegment(false, null);
+        }
+        message+=secret+"|";
+        return message;
+    }
+
+
+    public static boolean unwrapSegment (String segment){
+        System.out.println("S: "+segment);
+        String[] parts = segment.split(":");
+        long graphL = Long.parseLong(parts[0]);
+        Utilities.Gi = Utilities.long2Graph(graphL);
+        if (Utilities.hashBinary(Utilities.longToBytes(graphL))){
+            Utilities.SolGi=Utilities.string2List(parts[1]);
+            Utilities.isomorfismo = null;
+            return true;
+        } else {
+            Utilities.isomorfismo=Utilities.string2List(parts[1]);
+            Utilities.SolGi = null;
+            return false;
+        }
+    }
+
+    public static boolean unwrapSegmentCipher (String segmentCipher, byte[] key){
+        String segment = new String(Utilities.decipher(segmentCipher.getBytes(), key));
+        return unwrapSegment(segment);
+    }
+
+    public static String proccessPackage (String message){
+        String[] segments = message.split("\\|");
+        String ret = null;
+        if (!Utilities.checkReto(Utilities.unwrapSegment(segments[0]), Utilities.Gi, Utilities.SolGi, Utilities.isomorfismo)){
+            return ret;
+        }
+        for(int i=1; i<segments.length-1; i++){
+            if (!Utilities.checkReto(Utilities.unwrapSegment(segments[i]), Utilities.Gi, Utilities.SolGi, Utilities.isomorfismo)){
+                return ret;
+            }
+        }
+
+        return segments[segments.length-1];
     }
 
 }

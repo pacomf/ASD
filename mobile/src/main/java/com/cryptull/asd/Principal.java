@@ -18,19 +18,16 @@ public class Principal extends Activity {
 
 
         System.out.println("---- EMPIEZA -----");
+        Utilities.setG();
         final long startTime = System.currentTimeMillis();
 
-        Utilities.setG();
-        Utilities.generateGi();
+        String p = Utilities.getPackage(3, "Paco");
+        System.out.println("Pack:"+p);
+        System.out.println(Utilities.proccessPackage(p));
 
         final long duration1 = System.currentTimeMillis() - startTime;
 
-        String msg = String.valueOf(Utilities.graph2Long(Utilities.G))+":"+Utilities.list2Bytes(Utilities.isomorfismo);
-
-        System.out.println(msg.getBytes().length);
-
-        System.out.println(Utilities.bytes2List(Utilities.list2Bytes(Utilities.isomorfismo)));
-
+        System.out.println("["+duration1+"]"+p.getBytes().length);
 
 
         System.out.println("---- TERMINA -----");
