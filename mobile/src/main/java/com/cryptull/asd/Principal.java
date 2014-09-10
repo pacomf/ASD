@@ -18,17 +18,25 @@ public class Principal extends Activity {
 
 
         System.out.println("---- EMPIEZA -----");
-        Utilities.setG();
+        //Graph.setG();
+
+        Graph.generateGraph(5);
         final long startTime = System.currentTimeMillis();
 
-        String p = Utilities.getPackage(3, "Paco");
-        System.out.println("Pack:"+p);
-        System.out.println(Utilities.proccessPackage(p));
+        String p = Utilities.getPackage(2, "Paco");
 
         final long duration1 = System.currentTimeMillis() - startTime;
 
+        System.out.println("P:"+p);
         System.out.println("["+duration1+"]"+p.getBytes().length);
 
+        final long startTime1 = System.currentTimeMillis();
+
+        String des = Utilities.proccessPackage(p);
+
+        final long duration2 = System.currentTimeMillis() - startTime1;
+
+        System.out.println("["+duration2+"]"+des);
 
         System.out.println("---- TERMINA -----");
     }

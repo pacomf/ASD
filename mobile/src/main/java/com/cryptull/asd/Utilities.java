@@ -2,11 +2,13 @@ package com.cryptull.asd;
 
 import android.util.Base64;
 
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
@@ -128,7 +130,7 @@ public class Utilities {
             if (!visited[i])
                 return false;
         }
-        Utilities.key = Utilities.hash(Utilities.list2String(Utilities.SolGi).getBytes());
+        Utilities.key = Utilities.hash(Utilities.list2String(SolGi_).getBytes());
         // TODO: Concatener a esta clave la G
         return true;
     }
@@ -212,24 +214,6 @@ public class Utilities {
         return duration;
     }
 
-    public static void setG (){
-        Utilities.dim = 5;
-        SolG = new ArrayList<Integer>();
-        SolG.add(1);
-        SolG.add(3);
-        SolG.add(4);
-        SolG.add(2);
-        SolG.add(5);
-        G = new boolean[][]{
-                { false, true, true, true, true },
-                { true, false, false, true, true },
-                { true, false, false, true, false },
-                { true, true, true, false, true },
-                { true, true, false, true, false }
-        };
-
-    }
-
     public static void printGraph (boolean[][] graph){
         System.out.println("Grafo: ");
         for (int i=0; i<dim; i++){
@@ -238,6 +222,27 @@ public class Utilities {
             }
             System.out.println();
         }
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        final char[] hexArray = "0123456789ABCDEF".toCharArray();
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
+    public static byte[] hexToBytes(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
     }
 
     public static long graph2Long (boolean[][] graph){
@@ -289,6 +294,7 @@ public class Utilities {
         generateGi();
         long graphL = Utilities.graph2Long(Utilities.Gi);
         String seg = String.valueOf(graphL)+":";
+        byte[] key_aux = key;
         if (Utilities.hashBinary(Utilities.longToBytes(graphL))){
             seg+=Utilities.list2String(Utilities.SolGi);
             // TODO: Completar la KEY con la G
@@ -298,7 +304,11 @@ public class Utilities {
             Utilities.key = Utilities.hash(Utilities.list2String(Utilities.SolGi).getBytes());
         }
         if (cipher){
-            seg = new String(Utilities.cipher(seg.getBytes(), key));
+            try {
+                seg = Utilities.bytesToHex(Utilities.cipher(seg.getBytes(), key));
+            } catch (Exception e){
+                e.printStackTrace();
+            }
         }
         seg+="|";
         return seg;
@@ -306,21 +316,25 @@ public class Utilities {
 
     public static String getPackage(int segments, String secret){
         String message = null;
-        if (segments == 0)
-            return message;
-        message = getSegment(false, null);
-        for (int i=1; i<segments;i++){
-            message+=getSegment(false, null);
+        try {
+            if (segments == 0)
+                return message;
+            message = getSegment(false, null);
+            for (int i = 1; i < segments; i++) {
+                message += getSegment(true, Utilities.key);
+            }
+            message += Utilities.bytesToHex(Utilities.cipher(secret.getBytes(), key)) + "|";
+        } catch (Exception e){
+            e.printStackTrace();
         }
-        message+=secret+"|";
         return message;
     }
 
 
     public static boolean unwrapSegment (String segment){
-        System.out.println("S: "+segment);
         String[] parts = segment.split(":");
         long graphL = Long.parseLong(parts[0]);
+
         Utilities.Gi = Utilities.long2Graph(graphL);
         if (Utilities.hashBinary(Utilities.longToBytes(graphL))){
             Utilities.SolGi=Utilities.string2List(parts[1]);
@@ -334,23 +348,36 @@ public class Utilities {
     }
 
     public static boolean unwrapSegmentCipher (String segmentCipher, byte[] key){
-        String segment = new String(Utilities.decipher(segmentCipher.getBytes(), key));
-        return unwrapSegment(segment);
+        try {
+            String segment = new String(Utilities.decipher(Utilities.hexToBytes(segmentCipher), key), "UTF-8");
+            return unwrapSegment(segment);
+        } catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public static String proccessPackage (String message){
-        String[] segments = message.split("\\|");
-        String ret = null;
-        if (!Utilities.checkReto(Utilities.unwrapSegment(segments[0]), Utilities.Gi, Utilities.SolGi, Utilities.isomorfismo)){
-            return ret;
-        }
-        for(int i=1; i<segments.length-1; i++){
-            if (!Utilities.checkReto(Utilities.unwrapSegment(segments[i]), Utilities.Gi, Utilities.SolGi, Utilities.isomorfismo)){
+        try {
+            String[] segments = message.split("\\|");
+            String ret = null;
+            if (!Utilities.checkReto(Utilities.unwrapSegment(segments[0]), Utilities.Gi, Utilities.SolGi, Utilities.isomorfismo)) {
+                System.out.println("Nop");
                 return ret;
             }
-        }
+            for (int i = 1; i < segments.length - 1; i++) {
+                if (!Utilities.checkReto(Utilities.unwrapSegmentCipher(segments[i], Utilities.key), Utilities.Gi, Utilities.SolGi, Utilities.isomorfismo)) {
+                    System.out.printf("Nop Cypher");
+                    return ret;
+                }
+            }
 
-        return segments[segments.length-1];
+            return new String(Utilities.decipher(Utilities.hexToBytes(segments[segments.length - 1]), Utilities.key), "UTF-8");
+        } catch (Exception e){
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
 }
