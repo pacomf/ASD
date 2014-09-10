@@ -20,14 +20,14 @@ public class Principal extends Activity {
         System.out.println("---- EMPIEZA -----");
         //Graph.setG();
 
-        Graph.generateGraph(5);
+        Graph.generateGraph(1000);
         final long startTime = System.currentTimeMillis();
 
         String p = Utilities.getPackage(2, "Paco");
 
         final long duration1 = System.currentTimeMillis() - startTime;
 
-        System.out.println("P:"+p);
+        //System.out.println("P:"+p);
         System.out.println("["+duration1+"]"+p.getBytes().length);
 
         final long startTime1 = System.currentTimeMillis();

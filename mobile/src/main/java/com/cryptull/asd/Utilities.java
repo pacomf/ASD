@@ -245,21 +245,21 @@ public class Utilities {
         return data;
     }
 
-    public static long graph2Long (boolean[][] graph){
-        long n = 0;
+    public static String graph2Bin(boolean[][] graph){
+        String n = "";
         for (int i=0; i<dim; i++){
             for (int j=0; j<dim; j++){
-                n = (n << 1) + (graph[i][j] ? 1 : 0);
+                n += (graph[i][j] ? "1" : "0");
             }
         }
         return n;
     }
 
-    public static boolean[][] long2Graph (long number){
+    public static boolean[][] bin2Graph (String number){
         final boolean[][] graph = new boolean[dim][dim];
         int base = dim*dim;
         for (int i = 0; i < base; i++) {
-            graph[(base - 1 - i)/dim][(base - 1 - i)%dim] = (number & (1 << i)) != 0;
+            graph[(base - 1 - i)/dim][(base - 1 - i)%dim] = (number.charAt((base-1)-i)) == '1' ? true : false;
         }
         return graph;
     }
@@ -292,10 +292,10 @@ public class Utilities {
 
     public static String getSegment(boolean cipher, byte[] key){
         generateGi();
-        long graphL = Utilities.graph2Long(Utilities.Gi);
-        String seg = String.valueOf(graphL)+":";
+        String graphL = Utilities.graph2Bin(Utilities.Gi);
+        String seg = graphL+":";
         byte[] key_aux = key;
-        if (Utilities.hashBinary(Utilities.longToBytes(graphL))){
+        if (Utilities.hashBinary(graphL.getBytes())){
             seg+=Utilities.list2String(Utilities.SolGi);
             // TODO: Completar la KEY con la G
             Utilities.key = Utilities.hash(Utilities.list2String(Utilities.SolGi).getBytes());
@@ -333,10 +333,8 @@ public class Utilities {
 
     public static boolean unwrapSegment (String segment){
         String[] parts = segment.split(":");
-        long graphL = Long.parseLong(parts[0]);
-
-        Utilities.Gi = Utilities.long2Graph(graphL);
-        if (Utilities.hashBinary(Utilities.longToBytes(graphL))){
+        Utilities.Gi = Utilities.bin2Graph(parts[0]);
+        if (Utilities.hashBinary(parts[0].getBytes())){
             Utilities.SolGi=Utilities.string2List(parts[1]);
             Utilities.isomorfismo = null;
             return true;

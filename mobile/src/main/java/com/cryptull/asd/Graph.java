@@ -52,6 +52,6 @@ public class Graph {
             }
         }
 
-        Utilities.printGraph(Utilities.G);
+        //Utilities.printGraph(Utilities.G);
     }
 }
