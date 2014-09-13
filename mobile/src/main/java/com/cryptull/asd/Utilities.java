@@ -1,6 +1,7 @@
 package com.cryptull.asd;
 
 import android.util.Base64;
+import android.widget.TextView;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -181,25 +182,6 @@ public class Utilities {
        return ((b >> 7) & 1) == 1;
     }
 
-    public static String Bytes2String(byte[] text){
-        try {
-            return new String(text, "UTF-8");
-        } catch(Exception e){
-            return null;
-        }
-    }
-
-    public static byte[] String2Bytes(String text){
-        return text.getBytes();
-    }
-
-    public static String Bytes2Binary(byte[] bytes) {
-        StringBuilder sb = new StringBuilder(bytes.length * Byte.SIZE);
-        for( int i = 0; i < Byte.SIZE * bytes.length; i++ )
-            sb.append((bytes[i / Byte.SIZE] << i % Byte.SIZE & 0x80) == 0 ? '0' : '1');
-        return sb.toString();
-    }
-
     public static long timeFunctionMillis (){
         final long startTime = System.currentTimeMillis();
         // HERE THE FUNCTION TO CALCULATED
@@ -252,12 +234,19 @@ public class Utilities {
                 n += (graph[i][j] ? "1" : "0");
             }
         }
-        return n;
+        return new BigInteger(n, 2).toString(16).toUpperCase();
+        //return n;
     }
 
     public static boolean[][] bin2Graph (String number){
         final boolean[][] graph = new boolean[dim][dim];
         int base = dim*dim;
+        number = new BigInteger(number, 16).toString(2);
+        String padding = "";
+        for (int i=number.length(); i<base; i++){
+            padding += "0";
+        }
+        number = padding+number;
         for (int i = 0; i < base; i++) {
             graph[(base - 1 - i)/dim][(base - 1 - i)%dim] = (number.charAt((base-1)-i)) == '1' ? true : false;
         }
@@ -275,19 +264,6 @@ public class Utilities {
             list.add(i, Integer.parseInt(ls[i]));
         }
         return list;
-    }
-
-    public static byte[] longToBytes(long l) {
-        ArrayList<Byte> bytes = new ArrayList<Byte>();
-        while (l != 0) {
-            bytes.add((byte) (l % (0xff + 1)));
-            l = l >> 8;
-        }
-        byte[] bytesp = new byte[bytes.size()];
-        for (int i = bytes.size() - 1, j = 0; i >= 0; i--, j++) {
-            bytesp[j] = bytes.get(i);
-        }
-        return bytesp;
     }
 
     public static String getSegment(boolean cipher, byte[] key){
@@ -314,14 +290,20 @@ public class Utilities {
         return seg;
     }
 
-    public static String getPackage(int segments, String secret){
+    public static String getPackage(int segments, String secret, TextView consola){
         String message = null;
         try {
             if (segments == 0)
                 return message;
+            final long startTime = System.currentTimeMillis();
             message = getSegment(false, null);
+            final long duration1 = System.currentTimeMillis() - startTime;
+            consola.append("Generado Segmento 1 (sin cifrar) en: "+duration1+" ms.\n");
             for (int i = 1; i < segments; i++) {
+                final long startTime2 = System.currentTimeMillis();
                 message += getSegment(true, Utilities.key);
+                final long duration2 = System.currentTimeMillis() - startTime2;
+                consola.append("Generado Segmento "+(i+1)+" (cifrado) en: "+duration2+" ms.\n");
             }
             message += Utilities.bytesToHex(Utilities.cipher(secret.getBytes(), key)) + "|";
         } catch (Exception e){
