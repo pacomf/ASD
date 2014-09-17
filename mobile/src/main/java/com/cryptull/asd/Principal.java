@@ -62,6 +62,28 @@ public class Principal extends Activity {
         consola = (TextView) findViewById(R.id.textView4);
         consola.setMovementMethod(new ScrollingMovementMethod());
 
+        /*Utilities.dim=3;
+        boolean[][] m = {{false, true, false},
+                         {true, true, false},
+                         {true, false, true}};
+
+        consola.append(Utilities.graph2Bin(m, consola)+"\n");
+        consola.append("**************--******************");
+        String st = Utilities.graph2Bin2(m, consola);
+        consola.append(st+"\n");
+
+        boolean[][] gr = null;
+
+        try {
+            gr = Utilities.readBooleans(st);
+        } catch (Exception e){
+            e.printStackTrace();
+            consola.append("Fallo: "+e.getMessage());
+        }
+
+        Utilities.printGraph(gr);*/
+
+
         limpiar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,7 +108,7 @@ public class Principal extends Activity {
                 consola.append("*** Tiempo en Generar Paquete: "+duration1+" ms. \n");
                 //consola.append("*** Paquete: "+p+"\n");
                 final long startTime1 = System.currentTimeMillis();
-                String des = Utilities.proccessPackage(p);
+                String des = Utilities.proccessPackage(p, consola);
                 final long duration2 = System.currentTimeMillis() - startTime1;
                 consola.append("*** Tiempo en Procesar Paquete: "+duration2+" ms. \n");
                 consola.append("*** Secreto: "+des+"\n");
