@@ -48,10 +48,12 @@ public class Graph {
         for(int i=0; i<nodes; i++){
             for (int j=0; j<nodes; j++){
                 if (i != j){
-                    if (Graph.getRandomBoolean(random)){
-                        Utilities.G[i][j] = true;
-                        Utilities.G[j][i] = true;
-                        Graph.edges++;
+                    if (Utilities.G[i][j] == false) {
+                        if (Graph.getRandomBoolean(random)) {
+                            Utilities.G[i][j] = true;
+                            Utilities.G[j][i] = true;
+                            Graph.edges++;
+                        }
                     }
                 }
             }
@@ -60,11 +62,14 @@ public class Graph {
         //Utilities.printGraph(Utilities.G);
     }
 
+    // Lo comprueba solo con 1 Teorema, si es FALSE, no podremos asegurar que sea Plano
+    // TODO: Mejorar esta comprobacion para asegurarnos al 100%, y no solo cuando da TRUE.
     public static boolean isNoPlanar (int v, int a){
         int comparator = (3*v)-6;
         if (a <= comparator){
-            return true;
+            return true; // Podemos asegurar que el Grafo es NO PLANO
         }
+        // No sabemos si es Plano o NO.
         return false;
     }
 }
