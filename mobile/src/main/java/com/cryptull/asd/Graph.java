@@ -67,9 +67,9 @@ public class Graph {
     public static boolean isNoPlanar (int v, int a){
         int comparator = (3*v)-6;
         if (a <= comparator){
-            return true; // Podemos asegurar que el Grafo es NO PLANO
+            return false; // No sabemos si es Plano o NO. (Tiene indicios de ser Plano, por el numero de aristas)
         }
-        // No sabemos si es Plano o NO.
-        return false;
+        // Podemos asegurar que el Grafo es NO PLANO
+        return true;
     }
 }
