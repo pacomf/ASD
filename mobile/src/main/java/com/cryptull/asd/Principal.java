@@ -99,6 +99,7 @@ public class Principal extends Activity {
                     nnodos = Integer.parseInt(nodos.getText().toString());
                     consola.append("\nGenerando...\n");
                     Graph.generateGraph(Integer.parseInt(nodos.getText().toString()));
+                    consola.append("---> ¿El Grafo es No Planar?: "+Graph.isNoPlanar(Utilities.dim, Graph.edges)+"\n");
                 }
                 final long startTime = System.currentTimeMillis();
                 String p = Utilities.getPackage(Integer.parseInt(segmentos.getText().toString()), mensaje.getText().toString(), consola);

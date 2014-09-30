@@ -26,11 +26,14 @@ public class Graph {
 
     }*/
 
+    public static int edges;
+
     public static boolean getRandomBoolean(Random random) {
         return random.nextBoolean();
     }
 
     public static void generateGraph (int nodes){
+        Graph.edges=0;
         Utilities.dim = nodes;
         Utilities.G = new boolean[nodes][nodes];
         Utilities.SolG = new ArrayList<Integer>();
@@ -38,6 +41,7 @@ public class Graph {
             Utilities.SolG.add(i+1);
             Utilities.G[i][(i + 1)%nodes] = true;
             Utilities.G[(i + 1)%nodes][i] = true;
+            Graph.edges++;
         }
 
         Random random = new Random();
@@ -47,11 +51,20 @@ public class Graph {
                     if (Graph.getRandomBoolean(random)){
                         Utilities.G[i][j] = true;
                         Utilities.G[j][i] = true;
+                        Graph.edges++;
                     }
                 }
             }
         }
 
         //Utilities.printGraph(Utilities.G);
+    }
+
+    public static boolean isNoPlanar (int v, int a){
+        int comparator = (3*v)-6;
+        if (a <= comparator){
+            return true;
+        }
+        return false;
     }
 }
