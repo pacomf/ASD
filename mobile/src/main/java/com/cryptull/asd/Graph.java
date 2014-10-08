@@ -65,6 +65,8 @@ public class Graph {
     // Lo comprueba solo con 1 Teorema, si es FALSE, no podremos asegurar que sea Plano
     // TODO: Mejorar esta comprobacion para asegurarnos al 100%, y no solo cuando da TRUE.
     public static boolean isNoPlanar (int v, int a){
+        if (v < 3)
+            return false; // Debe haber 3 o mas vertices para poder aplicar este teorema
         int comparator = (3*v)-6;
         if (a <= comparator){
             return false; // No sabemos si es Plano o NO. (Tiene indicios de ser Plano, por el numero de aristas)
