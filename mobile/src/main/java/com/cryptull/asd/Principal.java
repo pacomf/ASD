@@ -10,6 +10,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.cryptull.pak.PAK;
+
+import java.math.BigInteger;
+import java.sql.SQLOutput;
 import java.util.Set;
 
 
@@ -25,7 +29,7 @@ public class Principal extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
 
-
+        usePAK();
 
         /*System.out.println("---- EMPIEZA -----");
         //Graph.setG();
@@ -140,5 +144,62 @@ public class Principal extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void usePAK (){
+        final long startTime = System.currentTimeMillis();
+        String idA = "A", idB = "B", password = "password";
+        PAK pakdh = new PAK(password);
+
+        // 1. A calculates X
+        BigInteger gRa = pakdh.generategRa();
+        BigInteger X = pakdh.calculateX(idA, idB, gRa);
+
+        // 2. A sends X to B
+
+        // 3. B calculates Y and S1
+        BigInteger gRb = pakdh.generategRb();
+        BigInteger Xab = pakdh.calculateXab(idA, idB, X);
+        BigInteger S1 = pakdh.calculateS1(idA, idB, Xab, gRb);
+        BigInteger Y = pakdh.calculateY(idA, idB, gRb);
+
+        // 4. B sends S1 and Y to A
+
+        // 5. A calculates S1' and verifies
+        BigInteger Yba = pakdh.calculateYba(idA, idB, Y);
+        BigInteger S1p = pakdh.calculateS1(idA, idB, gRa, Yba);
+
+        if (!S1p.equals(S1)){
+            System.out.println("No coinciden S1 de A y S1 de B: "+S1.toString(16)+" | "+S1p.toString(16));
+            return;
+        }
+
+        // 6. A calculates Ka and S2
+        BigInteger Ka = pakdh.calculateK(idA, idB, gRa, Yba);
+        BigInteger S2 = pakdh.calculateS2(idA, idB, gRa, Yba);
+
+        // 7. A sends S2 to B
+
+        // 8. B calculates S2' and verifies
+        BigInteger S2p = pakdh.calculateS2(idA, idB, Xab, gRb);
+
+        if (!S2p.equals(S2)){
+            System.out.println("No coinciden S2 de A y S2 de B: "+S2.toString(16)+" | "+S2p.toString(16));
+            return;
+        }
+
+        // 9. B calculates Kb
+        BigInteger Kb = pakdh.calculateK(idA, idB, Xab, gRb);
+        final long duration = System.currentTimeMillis() - startTime;
+
+        System.out.println("Tiempo requerido: "+duration+" ms.");
+
+        if (Ka.equals(Kb)){
+            System.out.println("EXITO: "+Ka);
+        } else {
+            System.out.println("FRACASO!!!!!!");
+            System.out.println("Ka: "+Ka);
+            System.out.println("Kb: "+Kb);
+        }
     }
 }
