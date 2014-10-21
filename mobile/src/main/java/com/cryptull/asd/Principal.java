@@ -11,7 +11,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.cryptull.pak.PAK;
+import com.cryptull.sockets.Utils;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.sql.SQLOutput;
 import java.util.Set;
@@ -28,8 +30,6 @@ public class Principal extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
-
-        usePAK();
 
         /*System.out.println("---- EMPIEZA -----");
         //Graph.setG();
@@ -91,41 +91,64 @@ public class Principal extends Activity {
         limpiar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                consola.setText("Consola");
+                if (consola.getText().toString().equals("Console")){
+                    Utils.startTime = System.currentTimeMillis();
+                    Utils.pak = new PAK("password");
+                    BigInteger[] bi = Utils.pak.processPackage(1, null, null, "idA", "idB", "password", consola, Principal.this);
+                    Utils.ConnectClientToServer("127.0.0.1", 8080, Utils.createPackage(1, bi[0], bi[1]), Utils.password, 1, consola, Principal.this);
+                } else {
+                    consola.setText("Console");
+                }
             }
         });
 
         generar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("- En Proceso... -");
+                //System.out.println("- En Proceso... -");
                 if ((nnodos == -1) || (nnodos != Integer.parseInt(nodos.getText().toString()))){
                     nnodos = Integer.parseInt(nodos.getText().toString());
-                    consola.append("\nGenerando...\n");
+                    //consola.append("\nGenerando...\n");
                     Graph.generateGraph(Integer.parseInt(nodos.getText().toString()));
-                    consola.append("---> ¿El Grafo es No Planar?: "+Graph.isNoPlanar(Utilities.dim, Graph.edges)+"\n");
+                    //consola.append("---> ¿El Grafo es No Planar?: "+Graph.isNoPlanar(Utilities.dim, Graph.edges)+"\n");
                 }
                 final long startTime = System.currentTimeMillis();
+                //final long startTime = System.currentTimeMillis();
                 String p = Utilities.getPackage(Integer.parseInt(segmentos.getText().toString()), mensaje.getText().toString(), consola);
-                final long duration1 = System.currentTimeMillis() - startTime;
-                consola.append("*********************************************\n");
-                consola.append("*** Tamaño del paquete: "+p.getBytes().length+" Bytes \n");
-                consola.append("*** Tiempo en Generar Paquete: "+duration1+" ms. \n");
+                //final long duration1 = System.currentTimeMillis() - startTime;
+                //consola.append("*********************************************\n");
+                //consola.append("*** Tamaño del paquete: "+p.getBytes().length+" Bytes \n");
+                //consola.append("*** Tiempo en Generar Paquete: "+duration1+" ms. \n");
                 //consola.append("*** Paquete: "+p+"\n");
-                final long startTime1 = System.currentTimeMillis();
+                //final long startTime1 = System.currentTimeMillis();
                 String des = Utilities.proccessPackage(p, consola);
-                final long duration2 = System.currentTimeMillis() - startTime1;
-                consola.append("*** Tiempo en Procesar Paquete: "+duration2+" ms. \n");
-                consola.append("*** Secreto: "+des+"\n");
-                consola.append("*********************************************\n");
-                System.out.println("- Fin -");
+                //final long duration2 = System.currentTimeMillis() - startTime1;
+                //consola.append("*** Tiempo en Procesar Paquete: "+duration2+" ms. \n");
+                final long duration = System.currentTimeMillis() - startTime;
+                consola.append("\nMensaje: "+des+"\nTiempo Requerido: "+duration+" ms. \n");
+                //consola.append("*** Secreto: "+des+"\n");
+                //consola.append("*********************************************\n");
+                //System.out.println("- Fin -");
             }
         });
 
-
+        Utils.RunServer(Principal.this, 8080, consola);
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (Utils.serverSocket != null) {
+            try {
+                Utils.serverSocket.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -146,7 +169,7 @@ public class Principal extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void usePAK (){
+    /*public void usePAK (){
         final long startTime = System.currentTimeMillis();
         String idA = "A", idB = "B", password = "password";
         PAK pakdh = new PAK(password);
@@ -201,5 +224,5 @@ public class Principal extends Activity {
             System.out.println("Ka: "+Ka);
             System.out.println("Kb: "+Kb);
         }
-    }
+    }*/
 }

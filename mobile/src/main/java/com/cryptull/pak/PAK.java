@@ -1,5 +1,10 @@
 package com.cryptull.pak;
 
+import android.app.Activity;
+import android.widget.TextView;
+
+import com.cryptull.asd.Principal;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -12,6 +17,11 @@ public class PAK {
 
     private String password;
     private BigInteger N, g, one, two;
+    private BigInteger gRa;
+    private BigInteger gRb;
+    private BigInteger Xab;
+    private BigInteger Yba;
+    public BigInteger K;
 
     public PAK (String password){
         this.password = password;
@@ -136,7 +146,7 @@ public class PAK {
     }
 
 
-    public static String bytesToHex(byte[] bytes) {
+    public String bytesToHex(byte[] bytes) {
         final char[] hexArray = "0123456789ABCDEF".toCharArray();
         char[] hexChars = new char[bytes.length * 2];
         for ( int j = 0; j < bytes.length; j++ ) {
@@ -145,6 +155,67 @@ public class PAK {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public BigInteger[] processPackage (int iteration, BigInteger param1, BigInteger param2, String idA, String idB, String password, final TextView consola, Activity act){
+        switch (iteration){
+            case 1: // Steps 1 & 2 | A->B
+                // 1. A calculates X
+                this.gRa = this.generategRa();
+                BigInteger X = this.calculateX(idA, idB, this.gRa);
+                // 2. A sends X to B
+                return new BigInteger[]{X, null};
+            case 2: // Steps 3 & 4: Param1 = X | B->A
+                // 3. B calculates Y and S1
+                this.gRb = this.generategRb();
+                this.Xab = this.calculateXab(idA, idB, param1);
+                BigInteger S1 = this.calculateS1(idA, idB, this.Xab, this.gRb);
+                BigInteger Y = this.calculateY(idA, idB, this.gRb);
+                // 4. B sends S1 and Y to A
+                return new BigInteger[]{S1, Y};
+            case 3: // Steps 5 & 6 & 7: Param1 = S1, Param2 =  Y | A->B
+                // 5. A calculates S1' and verifies
+                this.Yba = this.calculateYba(idA, idB, param2);
+                BigInteger S1p = this.calculateS1(idA, idB, this.gRa, this.Yba);
+
+                if (!S1p.equals(param1)){
+                    consola.append("\nNo coinciden S1 de A y S1 de B: "+param1.toString(16)+" | "+S1p.toString(16));
+                    return null;
+                }
+
+                // 6. A calculates Ka and S2
+                this.K = this.calculateK(idA, idB, this.gRa, this.Yba);
+                consola.append("\nMi clave (USER A) es: " + this.K);
+                BigInteger S2 = this.calculateS2(idA, idB, this.gRa, this.Yba);
+
+                // 7. A sends S2 to B
+                return new BigInteger[]{S2, null};
+            case 4: // Steps 8 & 9: Param1 = S2
+                // 8. B calculates S2' and verifies
+                BigInteger S2p = this.calculateS2(idA, idB, this.Xab, this.gRb);
+
+                if (!S2p.equals(param1)){
+                    consola.append("\nNo coinciden S2 de A y S2 de B: " + param1.toString(16) + " | " + S2p.toString(16));
+                    return null;
+                }
+
+                // 9. B calculates Kb
+                this.K = this.calculateK(idA, idB, this.Xab, this.gRb);
+                try {
+                    act.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            consola.append("\nMi clave (USER B) es: " + K);
+                        }
+                    });
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+                return null;
+            default: // Paso incorrecto
+                consola.append("\nHa habido un error inesperado");
+                return null;
+        }
     }
 
 

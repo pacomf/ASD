@@ -78,28 +78,28 @@ public class Utilities {
     }
 
     public static void generateGi (TextView consola){
-        final long startTime = System.currentTimeMillis();
+        //final long startTime = System.currentTimeMillis();
         isomorfismo = generateIso(dim);
-        final long duration1 = System.currentTimeMillis() - startTime;
-        consola.append("Isomorphism generated: " + duration1 + " ms.\n");
+        //final long duration1 = System.currentTimeMillis() - startTime;
+        //consola.append("Isomorphism generated: " + duration1 + " ms.\n");
 
-        final long startTime2 = System.currentTimeMillis();
+        //final long startTime2 = System.currentTimeMillis();
         Gi = new boolean[dim][dim];
         for (int i=0; i<dim; i++){
             for (int j=0; j<dim; j++){
                 Gi[i][j] = G[isomorfismo.indexOf(i+1)][isomorfismo.indexOf(j+1)];
             }
         }
-        final long duration2 = System.currentTimeMillis() - startTime2;
-        consola.append("Isomorphic Graph Generated: " + duration2 + " ms.\n");
+        //final long duration2 = System.currentTimeMillis() - startTime2;
+        //consola.append("Isomorphic Graph Generated: " + duration2 + " ms.\n");
 
-        final long startTime3 = System.currentTimeMillis();
+        //final long startTime3 = System.currentTimeMillis();
         SolGi = new ArrayList<Integer>();
         for (int i=0; i<dim; i++) {
             SolGi.add(isomorfismo.get(SolG.get(i)-1));
         }
-        final long duration3 = System.currentTimeMillis() - startTime3;
-        consola.append("Solution Isomorphic Graph Generated: " + duration3 + " ms.\n");
+        //final long duration3 = System.currentTimeMillis() - startTime3;
+        //consola.append("Solution Isomorphic Graph Generated: " + duration3 + " ms.\n");
     }
 
     public static boolean checkReto0 (boolean[][] Gi_, List<Integer> isomorfismo_){
@@ -151,14 +151,14 @@ public class Utilities {
 
     public static boolean checkReto(boolean reto, boolean[][] Gi_, List<Integer> SolGi_, List<Integer> Iso_, TextView consola){
         boolean ret=false;
-        final long startTime = System.currentTimeMillis();
+        //final long startTime = System.currentTimeMillis();
         if (reto)
             ret =  checkReto1(Gi_, SolGi_);
         else
             ret = checkReto0(Gi_, Iso_);
 
-        final long duration = System.currentTimeMillis() - startTime;
-        consola.append("Check Challenge "+reto+" in: " + duration + " ms\n");
+        //final long duration = System.currentTimeMillis() - startTime;
+        //consola.append("Check Challenge "+reto+" in: " + duration + " ms\n");
         return ret;
     }
 
@@ -201,19 +201,19 @@ public class Utilities {
        return ((b >> 7) & 1) == 1;
     }
 
-    public static long timeFunctionMillis (){
+    /*public static long timeFunctionMillis (){
         final long startTime = System.currentTimeMillis();
         // HERE THE FUNCTION TO CALCULATED
         final long duration = System.currentTimeMillis() - startTime;
         return duration;
-    }
+    }*/
 
-    public static long timeFunctionNano (){
+    /*public static long timeFunctionNano (){
         final long startTime = System.nanoTime();
         // HERE THE FUNCTION TO CALCULATED
         final long duration = System.nanoTime() - startTime;
         return duration;
-    }
+    }*/
 
     public static void printGraph (boolean[][] graph){
         System.out.println("Grafo: ");
@@ -248,7 +248,7 @@ public class Utilities {
 
     public static String graph2Bin(boolean[][] graph, TextView consola){
         String n = "";
-        final long startTime = System.currentTimeMillis();
+        //final long startTime = System.currentTimeMillis();
         String out = "";
         int b, i, j;
         for (i=0; i<((dim*dim)-1); i+=8){
@@ -264,8 +264,8 @@ public class Utilities {
             b = (b << 1) | (graph[j/dim][j%dim] ? 1 : 0);
         }
         out+=b;
-        final long duration = System.currentTimeMillis() - startTime;
-        consola.append("Converting Graph2String (Graph2Bin): " + duration + " ms.\n");
+        //final long duration = System.currentTimeMillis() - startTime;
+        //consola.append("Converting Graph2String (Graph2Bin): " + duration + " ms.\n");
         return out;
     }
 
@@ -299,43 +299,43 @@ public class Utilities {
 
     public static String getSegment(boolean cipher, byte[] key, TextView consola){
         generateGi(consola);
-        final long startTime = System.currentTimeMillis();
+        //final long startTime = System.currentTimeMillis();
         String graphL = Utilities.graph2Bin(Utilities.Gi, consola);
-        final long duration1 = System.currentTimeMillis() - startTime;
-        consola.append("Converting Graph2Bin: " + duration1 + " ms.\n");
+        //final long duration1 = System.currentTimeMillis() - startTime;
+        //consola.append("Converting Graph2Bin: " + duration1 + " ms.\n");
 
         String seg = graphL+":";
         if (Utilities.hashBinary(graphL.getBytes())){
-            final long startTime2 = System.currentTimeMillis();
+            //final long startTime2 = System.currentTimeMillis();
             seg+=Utilities.list2String(Utilities.SolGi);
-            final long duration2 = System.currentTimeMillis() - startTime2;
-            consola.append("Converting List2String: " + duration2 + " ms.\n");
+            //final long duration2 = System.currentTimeMillis() - startTime2;
+            //consola.append("Converting List2String: " + duration2 + " ms.\n");
             // TODO: Completar la KEY con la G
 
-            final long startTime3 = System.currentTimeMillis();
+            //final long startTime3 = System.currentTimeMillis();
             Utilities.key = Utilities.hash(Utilities.list2String(Utilities.SolGi).getBytes());
-            final long duration3 = System.currentTimeMillis() - startTime3;
-            consola.append("Calculating Key (Hash+List2String): " + duration3 + " ms.\n");
+            //final long duration3 = System.currentTimeMillis() - startTime3;
+            //consola.append("Calculating Key (Hash+List2String): " + duration3 + " ms.\n");
         } else {
-            final long startTime2 = System.currentTimeMillis();
+            //final long startTime2 = System.currentTimeMillis();
             seg+=Utilities.list2String(Utilities.isomorfismo);
-            final long duration2 = System.currentTimeMillis() - startTime2;
-            consola.append("Converting List2String: " + duration2 + " ms.\n");
+            //final long duration2 = System.currentTimeMillis() - startTime2;
+            //consola.append("Converting List2String: " + duration2 + " ms.\n");
 
-            final long startTime3 = System.currentTimeMillis();
+            //final long startTime3 = System.currentTimeMillis();
             Utilities.key = Utilities.hash(Utilities.list2String(Utilities.SolGi).getBytes());
-            final long duration3 = System.currentTimeMillis() - startTime3;
-            consola.append("Calculating Key (Hash+List2String): " + duration3 + " ms.\n");
+            //final long duration3 = System.currentTimeMillis() - startTime3;
+            //consola.append("Calculating Key (Hash+List2String): " + duration3 + " ms.\n");
         }
         if (cipher){
-            final long startTime4 = System.currentTimeMillis();
+            //final long startTime4 = System.currentTimeMillis();
             try {
                 seg = Utilities.bytesToHex(Utilities.cipher(seg.getBytes(), key));
             } catch (Exception e){
                 e.printStackTrace();
             }
-            final long duration4 = System.currentTimeMillis() - startTime4;
-            consola.append("Ciphering: " + duration4 + " ms.\n");
+            //final long duration4 = System.currentTimeMillis() - startTime4;
+            //consola.append("Ciphering: " + duration4 + " ms.\n");
         }
         seg+="|";
         return seg;
@@ -347,18 +347,16 @@ public class Utilities {
         try {
             if (segments == 0)
                 return message;
-            final long startTime = System.currentTimeMillis();
+            //final long startTime = System.currentTimeMillis();
             message = getSegment(false, null, consola);
-            final long duration1 = System.currentTimeMillis() - startTime;
-            System.out.println("Generating Segment 1 (no cipher) in: "+duration1+" ms.");
-            consola.append("Generating Segment 1 en: " + duration1 + " ms. Size: "+message.getBytes().length+" bytes\n");
+            //final long duration1 = System.currentTimeMillis() - startTime;
+            //consola.append("Generating Segment 1 en: " + duration1 + " ms. Size: "+message.getBytes().length+" bytes\n");
             for (int i = 1; i < segments; i++) {
-                final long startTime2 = System.currentTimeMillis();
+                //final long startTime2 = System.currentTimeMillis();
                 seg = getSegment(true, Utilities.key, consola);
                 message += seg;
-                final long duration2 = System.currentTimeMillis() - startTime2;
-                System.out.println("Segment "+(i+1)+" generated (cipher) en: "+duration2+" ms.");
-                consola.append("Segment "+(i+1)+" generated (cipher) en: "+duration2+" ms. Size: "+seg.getBytes().length+" bytes\n");
+                //final long duration2 = System.currentTimeMillis() - startTime2;
+                //consola.append("Segment "+(i+1)+" generated (cipher) en: "+duration2+" ms. Size: "+seg.getBytes().length+" bytes\n");
             }
             message += Utilities.bytesToHex(Utilities.cipher(secret.getBytes(), key)) + "|";
         } catch (Exception e){
@@ -370,14 +368,14 @@ public class Utilities {
 
     public static boolean unwrapSegment (String segment, TextView consola){
         String[] parts = segment.split(":");
-        final long startTime = System.currentTimeMillis();
+        //final long startTime = System.currentTimeMillis();
         try {
             Utilities.Gi = Utilities.bin2Graph(parts[0]);
         } catch (Exception e){
             return false;
         }
-        final long duration = System.currentTimeMillis() - startTime;
-        consola.append("Converting Bin2Graph in: " + duration + " ms\n");
+        //final long duration = System.currentTimeMillis() - startTime;
+        //consola.append("Converting Bin2Graph in: " + duration + " ms\n");
         if (Utilities.hashBinary(parts[0].getBytes())){
             Utilities.SolGi=Utilities.string2List(parts[1]);
             Utilities.isomorfismo = null;
@@ -404,12 +402,12 @@ public class Utilities {
             String[] segments = message.split("\\|");
             String ret = null;
             if (!Utilities.checkReto(Utilities.unwrapSegment(segments[0], consola), Utilities.Gi, Utilities.SolGi, Utilities.isomorfismo, consola)) {
-                System.out.println("Nop");
+                //System.out.println("Nop");
                 return ret;
             }
             for (int i = 1; i < segments.length - 1; i++) {
                 if (!Utilities.checkReto(Utilities.unwrapSegmentCipher(segments[i], Utilities.key, consola), Utilities.Gi, Utilities.SolGi, Utilities.isomorfismo, consola)) {
-                    System.out.printf("Nop Cypher");
+                    //System.out.printf("Nop Cypher");
                     return ret;
                 }
             }
