@@ -28,14 +28,16 @@ public class MyClientTask extends AsyncTask<Void, Void, Void> {
     int step;
     TextView consola;
     Activity activity;
+    String msgFinal;
 
-    MyClientTask(String addr, int port, String msgTo, int step, TextView consola, Activity act) {
+    MyClientTask(String addr, int port, String msgTo, int step, TextView consola, Activity act, String msg) {
         dstAddress = addr;
         dstPort = port;
         msgToServer = msgTo;
         this.step = step;
         this.consola = consola;
         this.activity = act;
+        this.msgFinal = msg;
     }
 
     @Override
@@ -106,15 +108,23 @@ public class MyClientTask extends AsyncTask<Void, Void, Void> {
                 BigInteger[] bir = Utils.pak.processPackage(step, bi[1], bi[2], "idA", "idB", Utils.password, consola, activity);
                 if (bir != null) {
                     String msgReply = Utils.createPackage(step, bir[0], bir[1]);
-                    Utils.ConnectClientToServer("127.0.0.1", 8080, msgReply, Utils.password, step, consola, activity);
+                    Utils.ConnectClientToServer(this.dstAddress, this.dstPort, msgReply, Utils.password, step, consola, activity, this.msgFinal);
                 }
             } else if (response.equals("ready")){
                 //final long duration = System.currentTimeMillis() - Utils.startTime;
                 //consola.append("\nTiempo Requerido: " + duration + " ms.");
                 if (Utils.pak.K != null){
-                    String msg = "Hello world!";
-                    Utils.ConnectClientToServer("127.0.0.1", 8080, msg, Utils.pak.K.toString(), ++step, consola, activity);
+                    Utils.ConnectClientToServer(this.dstAddress, this.dstPort, this.msgFinal, Utils.pak.K.toString(), ++step, consola, activity, this.msgFinal);
                 }
+            } else if (response.equals("end")){
+                final long duration = System.currentTimeMillis() - Utils.startTime;
+
+                this.activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        consola.append("\nTiempo Requerido: " + duration + " ms.");
+                    }
+                });
             }
         } catch (Exception e){
             e.printStackTrace();

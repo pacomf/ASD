@@ -1,6 +1,7 @@
 package com.cryptull.asd;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
@@ -22,7 +23,7 @@ import java.util.Set;
 public class Principal extends Activity {
 
     EditText nodos, segmentos, mensaje;
-    Button limpiar, generar;
+    Button limpiar, generar, pak;
     TextView consola;
     int nnodos;
 
@@ -62,6 +63,7 @@ public class Principal extends Activity {
 
         limpiar = (Button) findViewById(R.id.button);
         generar = (Button) findViewById(R.id.button2);
+        pak = (Button) findViewById(R.id.buttonPAK);
 
         consola = (TextView) findViewById(R.id.textView4);
         consola.setMovementMethod(new ScrollingMovementMethod());
@@ -91,14 +93,7 @@ public class Principal extends Activity {
         limpiar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (consola.getText().toString().equals("Console")){
-                    Utils.startTime = System.currentTimeMillis();
-                    Utils.pak = new PAK("password");
-                    BigInteger[] bi = Utils.pak.processPackage(1, null, null, "idA", "idB", "password", consola, Principal.this);
-                    Utils.ConnectClientToServer("127.0.0.1", 8080, Utils.createPackage(1, bi[0], bi[1]), Utils.password, 1, consola, Principal.this);
-                } else {
                     consola.setText("Console");
-                }
             }
         });
 
@@ -132,7 +127,21 @@ public class Principal extends Activity {
             }
         });
 
-        Utils.RunServer(Principal.this, 8080, consola);
+        pak.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+               if (Utils.serverSocket != null) {
+                   try {
+                       Utils.serverSocket.close();
+                   } catch (IOException e) {
+                       // TODO Auto-generated catch block
+                       e.printStackTrace();
+                   }
+               }
+               Intent i = new Intent(Principal.this, PAKActivity.class);
+               Principal.this.startActivity(i);
+           }
+       });
 
     }
 

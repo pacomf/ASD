@@ -27,9 +27,9 @@ public class Utils {
         socketServerThread.start();
     }
 
-    public static void ConnectClientToServer(String ip, Integer port, String msg, String password, int step, TextView consola, Activity activity){
+    public static void ConnectClientToServer(String ip, Integer port, String msg, String password, int step, TextView consola, Activity activity, String msgFinal){
         msg = Utilities.bytesToHex(Utilities.cipher(msg.getBytes(), password.getBytes()));
-        MyClientTask myClientTask = new MyClientTask(ip,port, msg, step, consola, activity);
+        MyClientTask myClientTask = new MyClientTask(ip,port, msg, step, consola, activity, msgFinal);
         myClientTask.execute();
     }
 

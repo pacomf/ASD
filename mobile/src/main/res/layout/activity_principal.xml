@@ -68,17 +68,26 @@
         android:id="@+id/textView4"
         android:scrollbars = "vertical"
         android:layout_below="@+id/editText3"
-        android:layout_above="@+id/button"
+        android:layout_above="@+id/buttonPAK"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="5dp"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Clean Console"
-        android:id="@+id/button"
+        android:text="PAK"
+        android:id="@+id/buttonPAK"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clean"
+        android:id="@+id/button"
+        android:layout_marginBottom="10dp"
+        android:layout_toRightOf="@id/buttonPAK"
+        android:layout_alignParentBottom="true"/>
 
     <Button
         android:layout_width="match_parent"
@@ -86,8 +95,7 @@
         android:text="Generate"
         android:id="@+id/button2"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_toRightOf="@+id/button"
+        android:layout_toRightOf="@id/button"
         android:layout_marginBottom="10dp"/>
 
 </RelativeLayout>

@@ -79,12 +79,10 @@ public class SocketServerThread extends Thread {
                 } else {
                     step = 1;
                     message = new String(Utilities.decipher(Utilities.hexToBytes(message), pak.K.toString().getBytes()), "UTF-8");
-                    final long duration = System.currentTimeMillis() - Utils.startTime;
-
                     this.activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            consola.append("\nMensaje: "+message+"\nTiempo Requerido: " + duration + " ms.");
+                            consola.append("\nMensaje Recibido: "+message);
                         }
                     });
                     msgReply = "end";
